@@ -1,16 +1,17 @@
-import json
 import requests
 import os
 from dotenv import load_dotenv
-
+from pathlib import Path
 load_dotenv()
 
+base_dir = Path(__file__).resolve().parent
+input_path = base_dir / "input.txt"
 api_key = os.getenv("OPENROUTER_API_KEY")
 if not api_key:
     print("There is no Operrouter API Key")
     exit(1)
 
-with open ("input.txt") as f:
+with open (input_path) as f:
     content = f.read()
 
 url = "https://openrouter.ai/api/v1/chat/completions"
@@ -18,8 +19,6 @@ url = "https://openrouter.ai/api/v1/chat/completions"
 prompt = f"Summarize the following: \n\n {content}"
 headers = {
     "Authorization": f"Bearer {api_key}",
-    "HTTP-Referer": "<YOUR_SITE_URL>", # Optional. Site URL for rankings on openrouter.ai.
-    "X-OpenRouter-Title": "<YOUR_SITE_NAME>", # Optional. Site title for rankings on openrouter.ai.
     }
 payload = {
     "model": "openrouter/free",
@@ -28,15 +27,19 @@ payload = {
         ]
     }
 
-
-response = requests.post(url, headers=headers, json=payload)
+summary_path = base_dir / "summary.txt"
+try:
+    response = requests.post(url, headers=headers, json=payload, timeout=15)
+except requests.exceptions.RequestException as error:
+    print(f"Error Occured {error}")
+    exit(1)
 
 if response.status_code == 200:
     data = response.json()
     answer = data["choices"][0]["message"]["content"]
     tokens = data["usage"]
     print(f"The Total Tokens used for this call {tokens}")
-    with open ("summary.txt", "w") as f:
+    with open (summary_path, "w") as f:
         f.write(answer)
 
 else:

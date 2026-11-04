@@ -11,7 +11,10 @@ with open("menu.json") as f:
 while True:
     try:
         guests = int(input("How many guests need to be served?"))
-        break
+        if guests <= 0:
+            print("Please enter a valid number!")
+        else:
+            break
     except ValueError:
         print("Please enter a number!")
 chosen_dishes = [] 
