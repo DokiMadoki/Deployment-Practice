@@ -8,7 +8,7 @@ base_dir = Path(__file__).resolve().parent
 input_path = base_dir / "input.txt"
 api_key = os.getenv("OPENROUTER_API_KEY")
 if not api_key:
-    print("There is no Operrouter API Key")
+    print("There is no Openrouter API Key")
     exit(1)
 
 with open (input_path) as f:
